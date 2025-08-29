@@ -35,7 +35,7 @@ class SSD1306(framebuf.FrameBuffer):
         self.init_display()
 
     def init_display(self):
-        # 初期化コマンドを配列にまとめる
+        # Initialization commands grouped in an array
         init_sequence = [
             SET_DISP | 0x00,  # off
             SET_MEM_ADDR, 0x00,  # horizontal addressing
@@ -57,7 +57,7 @@ class SSD1306(framebuf.FrameBuffer):
         
         for cmd in init_sequence:
             self.write_cmd(cmd)
-            # 最小限の待機時間
+            # Minimal wait time
             time.sleep_us(100)  # 0.1ms in microseconds
         
         self.fill(0)
@@ -83,7 +83,7 @@ class SSD1306(framebuf.FrameBuffer):
             x0 += 32
             x1 += 32
         
-        # アドレス設定コマンドをまとめて送信
+        # Send address setting commands in one sequence
         self.write_cmd(SET_COL_ADDR)
         self.write_cmd(x0)
         self.write_cmd(x1)
@@ -98,9 +98,9 @@ class SSD1306_I2C(SSD1306):
         self.addr = addr
         self.temp = bytearray(2)
         self.write_list = [b"\x40", None]
-        # パフォーマンス設定
+        # Performance settings
         self.fast_mode = True
-        self.max_chunk_size = 128  # より大きなチャンクサイズ
+        self.max_chunk_size = 128  # Larger chunk size
         super().__init__(width, height, external_vcc)
 
     def write_cmd(self, cmd):
@@ -110,16 +110,16 @@ class SSD1306_I2C(SSD1306):
         if self.fast_mode:
             try:
                 self.i2c.writeto(self.addr, self.temp)
-                # 高速モードでは待機時間を最小に
-                time.sleep_us(50)  # 50マイクロ秒
+                # In fast mode, minimize wait time
+                time.sleep_us(50)  # 50 microseconds
             except OSError:
-                # エラー時のみ安全モードに切り替え
+                # Switch to safe mode only on error
                 self._safe_write_cmd(cmd)
         else:
             self._safe_write_cmd(cmd)
     
     def _safe_write_cmd(self, cmd):
-        """安全モード用のコマンド送信"""
+        """Command transmission in safe mode"""
         self.temp[0] = 0x80
         self.temp[1] = cmd
         try:
@@ -128,34 +128,34 @@ class SSD1306_I2C(SSD1306):
         except OSError as e:
             print(f"Command write error: {e}")
             time.sleep_us(5000)  # 5ms
-            self.fast_mode = False  # 安全モードに切り替え
+            self.fast_mode = False  # Switch to safe mode
 
     def write_data(self, buf):
         if self.fast_mode:
-            # 高速モード: 大きなチャンクで送信を試行
+            # Fast mode: try sending in large chunks
             try:
                 self._write_data_fast(buf)
             except OSError:
-                # エラー時は安全モードにフォールバック
+                # On error, fallback to safe mode
                 self.fast_mode = False
                 self._write_data_safe(buf)
         else:
             self._write_data_safe(buf)
     
     def _write_data_fast(self, buf):
-        """高速データ送信"""
+        """Fast data transmission"""
         chunk_size = self.max_chunk_size
         
         for i in range(0, len(buf), chunk_size):
             chunk = buf[i:i+chunk_size]
             self.write_list[1] = chunk
             self.i2c.writevto(self.addr, self.write_list)
-            # 最小限の待機時間
+            # Minimal wait time
             if len(chunk) > 64:
-                time.sleep_us(200)  # 大きなチャンクの場合のみ
+                time.sleep_us(200)  # Only for larger chunks
     
     def _write_data_safe(self, buf):
-        """安全なデータ送信"""
+        """Safe data transmission"""
         chunk_size = 32
         
         for i in range(0, len(buf), chunk_size):
@@ -171,22 +171,22 @@ class SSD1306_I2C(SSD1306):
                 except OSError as e:
                     if attempt == retry_count - 1:
                         print(f"Data write failed after {retry_count} attempts: {e}")
-                    time.sleep_us(2000)  # 2ms待機してリトライ
+                    time.sleep_us(2000)  # Retry after 2ms
     
     def enable_fast_mode(self):
-        """高速モードを有効にする"""
+        """Enable fast mode"""
         self.fast_mode = True
         self.max_chunk_size = 128
     
     def enable_safe_mode(self):
-        """安全モードを有効にする（互換性重視）"""
+        """Enable safe mode (compatibility-focused)"""
         self.fast_mode = False
         self.max_chunk_size = 32
 
-# SPI版も同様に最適化
+# SPI version also optimized
 class SSD1306_SPI(SSD1306):
     def __init__(self, width, height, spi, dc, res, cs, external_vcc=False):
-        self.rate = 20 * 1024 * 1024  # SPIクロックを高速化
+        self.rate = 20 * 1024 * 1024  # Increase SPI clock
         dc.init(dc.OUT, value=0)
         res.init(res.OUT, value=0)
         cs.init(cs.OUT, value=1)
@@ -195,7 +195,7 @@ class SSD1306_SPI(SSD1306):
         self.res = res
         self.cs = cs
         
-        # リセット処理の最適化
+        # Optimized reset process
         self.res(1)
         time.sleep_us(1000)  # 1ms
         self.res(0)
