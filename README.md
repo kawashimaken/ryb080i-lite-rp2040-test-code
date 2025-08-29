@@ -3,8 +3,7 @@
 Test code for RYB080I Lite module from REYAX Technology
 * Thonny + MicroPython + Raspberry Pi Pico
 * RYB080I Lite link: https://reyax.com/products/RYB080I_Lite
-* AT Command Doc: [https://reyax.com//upload/products_download/download_file/RYLR993_AT_Command.pdf
-](https://reyax.com//upload/products_download/download_file/RYB080I_EN.pdf)
+* AT Command Doc: https://reyax.com//upload/products_download/download_file/RYB080I_EN.pdf
 # ⚠️ Warning / Disclaimer
 
 This code is provided **for experimental and educational purposes only**.  
