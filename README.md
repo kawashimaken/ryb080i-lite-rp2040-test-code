@@ -13,7 +13,7 @@ This code is meant to be a **reference** and starting point for your own experim
 
 # Watch the video
 
-editing...
+[![Watch the video](https://img.youtube.com/vi/KNTFUWv0tcQ/0.jpg)](https://www.youtube.com/watch?v=KNTFUWv0tcQ)
 
 # My Links
 
